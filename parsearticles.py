@@ -19,8 +19,6 @@ def Parsehtml(file_path):
 
 	purecontent = [c.string for c in content]
 	
-
-
 	return title, purecontent
 
 def Tokenizer(mystrings):

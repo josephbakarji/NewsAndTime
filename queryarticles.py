@@ -25,8 +25,8 @@ def QueryArticle(date):
 		year = date[0]
 		month = date[1]
 
-
 	archdirect = "./archive/"
+	ensure_dir(archdirect)
 	filename = "nyt_"+str(year)+"_"+str(month)+".json"
 
 	# Check if json metadata file exists in local directory and load it. If not request it and use it.	
