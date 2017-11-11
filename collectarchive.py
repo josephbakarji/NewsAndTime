@@ -36,15 +36,20 @@ def NYTmetaquery(start_date, end_date) :
 
 def DateList(start_date, end_date):
 	DateArray = []
-	start_year = int(start_date[0:4])
-	start_month = int(start_date[5:6])
-	end_year = int(end_date[0:4])
-	end_month = int(end_date[5:6])
+	if(type(start_date) == str):
+		start_year = int(start_date[0:4])
+		start_month = int(start_date[5:6])
+		end_year = int(end_date[0:4])
+		end_month = int(end_date[5:6])
+	elif(type(start_date) == list):
+		start_year = start_date[0]
+		start_month = start_date[1]
+		end_year = end_date[0]
+		end_month = end_date[1] 
 
 	y = start_year
 	m = start_month
 	while(y != end_year or m != end_month+1):
-		
 		DateArray.append([y,m])
 		if (m==12):
 			m = 1
