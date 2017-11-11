@@ -51,7 +51,7 @@ def QueryArticle(date):
 					flag = 1
 			if flag == 0:
 				testpage = UrlRequest(urls[i])
-				if(testpage != 404):
+				if(PageExists(testpage)):
 					numfile = i
 					break
 
@@ -60,7 +60,7 @@ def QueryArticle(date):
 		print(url)
 		if(url.split(".")[-1] == "html"):		# This condition needs to be changed (many articles are not .html)
 			full_page = UrlRequest(url)
-			if(full_page != 404):
+			if(PageExists(full_page)):
 				fp= full_page.decode("utf-8")
 				name = url.split("/")[-1]			
 				print(name)
@@ -70,7 +70,7 @@ def QueryArticle(date):
 				htmlfile.close()
 				time.sleep(1)
 			else:
-				print("404: Not Found")
+				print(str(full_page)+": Not Found")
 
 
 # Retrieve articles from a range of months
@@ -81,7 +81,8 @@ def QueryArticleLoop(start_date, end_date):
 		print(date)
 		QueryArticle(date)
 
-
+def PageExists(page):
+	return (page != 404) and (page != 410) 
 
 
 if __name__ == "__main__":
