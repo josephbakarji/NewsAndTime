@@ -32,7 +32,7 @@ def QueryArticle(date, *argv): #add num_pages if we want to decrease the number 
 
 	# Check if json metadata file exists in local directory and load it. If not request it and use it.	
 	if FileNotinDir(archdirect, filename):
-		NYTmetaquery(date, date)
+		NYTmetaquery(date, date)	
 	with open(archdirect+filename) as zfile:
 		metadata = json.load(zfile)
 
@@ -41,7 +41,6 @@ def QueryArticle(date, *argv): #add num_pages if we want to decrease the number 
 	direct = "./fullarticles/" + str(year) + "_" + str(month) + "/"
 	ensure_dir(direct)
 	filelist = os.listdir(direct)
-
 	if(len(argv)==0):
 		# Find index of url that was last downloaded (assumes only downloading .html files)
 		for i in range(len(urls)):
@@ -105,66 +104,6 @@ def QueryArticle(date, *argv): #add num_pages if we want to decrease the number 
 							pagesaved = 1
 						else:
 							print(str(full_page)+": Not Found")
-
-
-
-def QueryArticleLimit(date, limpages): 
-	
-	if(type(date)==str):
-		year = int(date[0:4])
-		month = int(date[5:6])
-	elif(type(date)==list):
-		year = date[0]
-		month = date[1]
-
-	archdirect = "./archive/"
-	ensure_dir(archdirect)
-	filename = "nyt_"+str(year)+"_"+str(month)+".json"
-
-	# Check if json metadata file exists in local directory and load it. If not request it and use it.	
-	if FileNotinDir(archdirect, filename):
-		NYTmetaquery(date, date)
-	with open(archdirect+filename) as zfile:
-		metadata = json.load(zfile)
-
-	urls = [metadata["response"]["docs"][i]["web_url"] for i in range(len(metadata["response"]["docs"]))];
-
-	direct = "./fullarticles/" + str(year) + "_" + str(month) + "/"
-	ensure_dir(direct)
-
-
-	filelist = os.listdir(direct)
-	numart = len(urls)
-	numlist = len(filelist)		# Number of pages already downloaded
-				
-	
-	if(limpages - numlist <= 0):
-		print("Directory contains more than " + str(limpages) + " articles")
-		return
-
-	for i in range(limpages - numlist):
-		pagesaved = 0
-		while(pagesaved == 0):
-			ind = randint(0, numart-1) 		# Choose a random index (article)
-			name = urls[ind].split("/")[-1]
-			print(url[ind])
-			if(FileNotinDir(direct, name)):
-				if(urls[ind].split(".")[-1] == "html"):		# 
-					full_page = UrlRequest(urls[ind])
-					if(PageExists(full_page)):
-						fp= full_page.decode("utf-8")
-									
-						print(name)
-
-						htmlfile = open(direct+name, 'w')
-						htmlfile.write(fp)
-						htmlfile.close()
-						time.sleep(0.1)
-						pagesaved = 1
-					else:
-						print(str(full_page)+": Not Found")
-
-
 
 
 # Retrieve articles from a range of months

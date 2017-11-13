@@ -45,12 +45,15 @@ def DateList(start_date, end_date):
 		start_year = start_date[0]
 		start_month = start_date[1]
 		end_year = end_date[0]
-		end_month = end_date[1] 
+		end_month = end_date[1]
 
 	y = start_year
 	m = start_month
-	while(y != end_year or m != end_month+1):
+	while(1):
 		DateArray.append([y,m])
+		if(y >= end_year and m >= end_month):
+			break
+
 		if (m==12):
 			m = 1
 			y = y + 1
