@@ -4,6 +4,7 @@ import time
 import datetime
 from bs4 import BeautifulSoup
 from collectarchive import NYTmetaquery, DateList, UrlRequest, FileNotinDir
+from random import randint
 
 
 
@@ -16,7 +17,7 @@ def ensure_dir(file_path):
 
 # Request and save articles in a local directory for a given month
 # date = 'YYYYMM' - string
-def QueryArticle(date):
+def QueryArticle(date): #, num_pages): add num_pages if we want to decrease the number of pages downloaded
 	
 	if(type(date)==str):
 		year = int(date[0:4])
@@ -37,7 +38,6 @@ def QueryArticle(date):
 
 	urls = [metadata["response"]["docs"][i]["web_url"] for i in range(len(metadata["response"]["docs"]))];
 
-	name = urls[0].split("/")[-1]
 	direct = "./fullarticles/" + str(year) + "_" + str(month) + "/"
 	ensure_dir(direct+name)
 	
@@ -54,7 +54,7 @@ def QueryArticle(date):
 				if(PageExists(testpage)):
 					numfile = i
 					break
-
+				
 	# Loop through list of "web_url"'s, query each ending with .html, and save to local directory
 	for url in urls[numfile:-1]:
 		print(url)
@@ -68,18 +68,77 @@ def QueryArticle(date):
 				htmlfile = open(direct+name, 'w')
 				htmlfile.write(fp)
 				htmlfile.close()
-				time.sleep(1)
+				time.sleep(0.4)
 			else:
 				print(str(full_page)+": Not Found")
 
 
+
+def QueryArticleLimit(date, limpages): 
+	
+	if(type(date)==str):
+		year = int(date[0:4])
+		month = int(date[5:6])
+	elif(type(date)==list):
+		year = date[0]
+		month = date[1]
+
+	archdirect = "./archive/"
+	ensure_dir(archdirect)
+	filename = "nyt_"+str(year)+"_"+str(month)+".json"
+
+	# Check if json metadata file exists in local directory and load it. If not request it and use it.	
+	if FileNotinDir(archdirect, filename):
+		NYTmetaquery(date, date)
+	with open(archdirect+filename) as zfile:
+		metadata = json.load(zfile)
+
+	urls = [metadata["response"]["docs"][i]["web_url"] for i in range(len(metadata["response"]["docs"]))];
+
+	direct = "./fullarticles/" + str(year) + "_" + str(month) + "/"
+	ensure_dir(direct)
+
+	filelist = os.listdir(direct)
+	numart = len(urls)
+	numlist = len(filelist)		# Number of pages already downloaded
+				
+	
+	if(limpages - numlist <= 0):
+		print("Directory contains more than " + str(limpages) + " articles")
+		return
+
+	for i in range(limpages - numlist):
+		pagesaved = 0
+		while(pagesaved == 0):
+			ind = randint(0, numart-1) 		# Choose a random index (article)
+			name = urls[ind].split("/")[-1]
+
+			if(FileNotinDir(direct, name)):
+				if(urls[ind].split(".")[-1] == "html"):		# 
+					full_page = UrlRequest(urls[ind])
+					if(PageExists(full_page)):
+						fp= full_page.decode("utf-8")
+									
+						print(name)
+
+						htmlfile = open(direct+name, 'w')
+						htmlfile.write(fp)
+						htmlfile.close()
+						time.sleep(0.1)
+						pagesaved = 1
+					else:
+						print(str(full_page)+": Not Found")
+
+
+
+
 # Retrieve articles from a range of months
 # start_date, end_date = 'YYYYMM' - string
-def QueryArticleLoop(start_date, end_date):
+def QueryArticleLoop(start_date, end_date, limpages):
 	dates = DateList(start_date, end_date)
 	for date in dates:
 		print(date)
-		QueryArticle(date)
+		QueryArticleLimit(date, limpages)
 
 def PageExists(page):
 	return (page != 404) and (page != 410) 
@@ -87,5 +146,5 @@ def PageExists(page):
 
 if __name__ == "__main__":
 	
-	QueryArticleLoop("199104", "201710")
+	QueryArticleLoop("198701", "199712", 1000)
 	

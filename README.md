@@ -7,6 +7,7 @@ You can put your name next to the task you would like to do. I think for now the
 - Building archive:
 	* The code downloads html files but slowly (takes 2 hours per month). I'll try decreasing the wait time between loops, but for now each one of us can download a portion. For a start, let's download the last 30 years. I'll take 1987-1997, Dimitrios: 1997-2007, Sepehr: 2007-2017.
 	* Store all files on a shared folder in google drive. We'll have to change the archive and fullarticles folder paths (I'll add __init__ for that)
+	* Build Training, dev, and test sets.
 - filtering articles and words:
 	* Now I'm just taking everything ending with .html. Some links ending with "/" seem to be also valid
 	* Remove stopwords with NLTK: http://www.geeksforgeeks.org/removing-stop-words-nltk-python/
