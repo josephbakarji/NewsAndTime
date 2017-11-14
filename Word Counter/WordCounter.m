@@ -2,15 +2,70 @@ clear all
 close all
 clc
 
-%Year 2013 : <title> does not contain the title :'(
-for year=2007:2016 
-    original_file_name=strcat(int2str(year),'.html');
-    output_file_name  =strcat(int2str(year),'.txt');
-    htmltotext(original_file_name,output_file_name);
-    %end write
-    
-    
+
+
+
+months=dir('../fullarticles/');
+mkdir('../fullarticlestext/');
+
+%Put the matlab file in a folder which is contained in the working
+%directory similar to the GitHub setup
+%Start and end dates go here
+start_year=2007;
+start_month=01;
+
+end_year=2009;
+end_month=05;
+
+numfolders=size(months);
+numfolders=numfolders(1);
+for i=1:numfolders
+    foldername=months(i).name;
+    if(strlength(foldername)>4)
+        year=str2num(foldername(1:4));
+        if(year>1000)
+            month=str2num(foldername(6:strlength(foldername)));
+            if( (year> start_year && year <end_year) || (start_year~= end_year && year==start_year && month>=start_month) || (start_year~= end_year && year==end_year && month<=end_month) || (start_year== end_year && year==start_year && month>=start_month && month<=end_month)) 
+                fprintf('Im woroking on the articles of year %d month %d ... ',year,month);
+                process(year,month); 
+                fprintf('Okay done!\n',year,month);
+            end
+        end
+    end
 end
+   
+
+
+function process(year,month)
+sourcefolderaddress =strcat('../fullarticles/',num2str(year),'_',num2str(month));
+outputfolderaddress    =strcat('../fullarticlestext/',num2str(year),'_',num2str(month));
+mkdir(outputfolderaddress);
+files=dir(sourcefolderaddress);
+numfiles=size(files);
+numfiles=numfiles(1);
+for i=1:numfiles
+   if(strlength(files(i).name)>4)
+       filename=files(i).name;
+       sourcefileaddress=strcat(sourcefolderaddress,'/',filename);
+       outputfileaddress=strcat(outputfolderaddress,'/',filename(1:strlength(filename)-4),'txt');
+    %   outputfileaddress
+       htmltotext(sourcefileaddress,outputfileaddress);
+       
+       
+    
+   end
+end
+
+
+end
+
+
+%Year 2013 : <title> does not contain the title :'(
+%for year=2007:2016 
+%    original_file_name=strcat(int2str(year),'.html');
+%    output_file_name  =strcat(int2str(year),'.txt');
+%    htmltotext(original_file_name,output_file_name);   
+%end
 
 function htmltotext(original_file_name,output_put_name)
     file=fileread(original_file_name);
@@ -47,7 +102,6 @@ function htmltotext(original_file_name,output_put_name)
         
         paragraph=fix_string(paragraph);
         paragraph=remove_hyperlinks(paragraph,original_file_name,numpar(2));
-        paragraph=strrep(paragraph,'ù',' ');
         
         fprintf(wfile,'\nPARAGRAPH <%d>\n %s',parcounter,paragraph);
         
@@ -85,7 +139,7 @@ if(sbegs(2)>0)
 else
     strout=str;
 end
-strout
+
 end
 
 function str=fix_string(str)
