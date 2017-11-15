@@ -1,0 +1,6 @@
+- Correctly mark things like apostrophe and etc. 
+- Isolate title. 
+- Isolate the text.
+- Find as much as feature as we can. Say size of quotes etc.
+- Count the number of words.
+- Compute the mutual information between word count and year and isolate the highest MI. 
