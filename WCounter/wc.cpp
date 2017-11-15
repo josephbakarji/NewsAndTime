@@ -3,10 +3,10 @@
 #include <dirent.h> 
 
 
-#define MAX_NUM_WORDS 200000
+#define MAX_NUM_WORDS 700000
 #define START_YEAR 2007
-#define END_YEAR   2009
-#define NUM_ARTS   7
+#define END_YEAR   2017
+#define NUM_ARTS   700
 
 
 
