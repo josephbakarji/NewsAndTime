@@ -61,14 +61,16 @@ def QueryArticle(date, *argv): #add num_pages if we want to decrease the number 
 			if(url.split(".")[-1] == "html"):		# This condition needs to be changed (many articles are not .html)
 				full_page = UrlRequest(url)
 				if(PageExists(full_page)):
-					fp= full_page.decode("utf-8")
-					name = url.split("/")[-1]			
-					print(name)
-
-					htmlfile = open(direct+name, 'w')
-					htmlfile.write(fp)
-					htmlfile.close()
-					time.sleep(0.1)
+					try:	
+						fp= full_page.decode("utf-8")
+						name = url.split("/")[-1]			
+						print(name)
+						htmlfile = open(direct+name, 'w')
+						htmlfile.write(fp)
+						htmlfile.close()
+						time.sleep(0.4)
+					except:
+						print("Error occured")
 				else:
 					print(str(full_page)+": Not Found")
 
@@ -86,22 +88,25 @@ def QueryArticle(date, *argv): #add num_pages if we want to decrease the number 
 		for i in range(limpages - numlist):
 			pagesaved = 0
 			while(pagesaved == 0):
-				ind = randint(0, numart-1) 		# Choose a random index (article)
+				ind = randint(0, numart-1) 		# Choose a random index (article) - make a full vector rand
 				name = urls[ind].split("/")[-1]
 				print(urls[ind])
 				if(FileNotinDir(direct, name)):
 					if(urls[ind].split(".")[-1] == "html"):		# 
 						full_page = UrlRequest(urls[ind])
 						if(PageExists(full_page)):
-							fp= full_page.decode("utf-8")
-										
-							print(name)
+							try:
+								fp= full_page.decode("utf-8")				
+								print(name)
+								htmlfile = open(direct+name, 'w')
+								htmlfile.write(fp)
+								htmlfile.close()
+								time.sleep(.2)
+								pagesaved = 1
+							except:
+								print("Error occured")
+								time.sleep(1)
 
-							htmlfile = open(direct+name, 'w')
-							htmlfile.write(fp)
-							htmlfile.close()
-							time.sleep(0.1)
-							pagesaved = 1
 						else:
 							print(str(full_page)+": Not Found")
 
@@ -120,5 +125,5 @@ def PageExists(page):
 
 if __name__ == "__main__":
 	
-	QueryArticleLoop("198701", "199712", 1000)
+	QueryArticleLoop("199601", "199712", 1000)
 	

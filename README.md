@@ -11,6 +11,7 @@ You can put your name next to the task you would like to do. I think for now the
 - filtering articles and words:
 	* Now I'm just taking everything ending with .html. Some links ending with "/" seem to be also valid
 	* Remove stopwords with NLTK: http://www.geeksforgeeks.org/removing-stop-words-nltk-python/
+	* Extract names of people and places: https://nlp.stanford.edu/software/CRF-NER.shtml, https://stackoverflow.com/questions/20290870/improving-the-extraction-of-human-names-with-nltk
 
 - Function for building year-word count table for a set of words.
 

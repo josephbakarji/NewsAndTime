@@ -67,10 +67,10 @@ def UrlRequest(URL):
 	try:
 		try:
 			page = urllib.request.urlopen(URL).read()
-		except urllib.request.HTTPError as g:
-			return g.code
-	except IncompleteRead as e:
-		page = e.partial
+		except IncompleteRead as e:
+			page = e.partial
+	except urllib.request.HTTPError as g:
+		return g.code
 
 	return page
 
