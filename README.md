@@ -29,6 +29,7 @@ You can put your name next to the task you would like to do. I think for now the
 - Feature Selection:
 	* Use mutual information to assess importance of words.
 	* Plot word frequency and come up with metric of fluctuation. 
+	* Include the number of stop-words as a feature.
 
 # Content
 
