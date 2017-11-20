@@ -5,7 +5,9 @@ import datetime
 from collectarchive import DateList
 import numpy as np
 from nltk.stem import PorterStemmer
+from nltk.corpus import stopwords
 import re
+stop_words = set(stopwords.words('english'))
 
 def MakeDictIndex(ftword):
 	wordict = dict() 
@@ -20,7 +22,7 @@ def MakeDictLabel(dates):
 	return datedict 
 
 def AcceptableString(word):
-	return re.match('\w+$', word) is not None
+	return (re.match('\w+$', word) is not None) and (word not in stop_words)
 ####################################################
 
 def Maketable(ftword, start_date, end_date, trainsize):
@@ -76,7 +78,7 @@ def MonthlyStat(start_date, end_date, trainsize):
 					for word in wlist:
 						if AcceptableString(word):
 							
-							sword = ps.stem(word)
+							sword = ps.stem(word.lower())
 							dd = str(date[0])+str(date[1])
 							if sword in wordict:
 								if dd in wordict[sword]:
@@ -108,9 +110,9 @@ if __name__ == "__main__":
 	#trainsize = 700
 	#Xtable = Maketable(ftword, start_date, end_date, trainsize)
 
-	start_date = '199101'
-	end_date = '199105'
-	trainsize = 300
+	start_date = '198701'
+	end_date = '199601'
+	trainsize = 700
 
 	g = MonthlyStat(start_date, end_date, trainsize)
 	print(g)
