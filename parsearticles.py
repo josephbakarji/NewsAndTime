@@ -1,6 +1,8 @@
 from bs4 import BeautifulSoup
 import json
 import os
+from collectarchive import DateList
+from queryarticles import QueryArticleLoop
 from queryarticles import ensure_dir
 from nltk.tokenize.moses import MosesTokenizer, MosesDetokenizer
 t, d = MosesTokenizer(), MosesDetokenizer()
@@ -51,6 +53,7 @@ def BuildDict(date):
 		tit, content, date = Parsehtml(directory+f)
 		mcont = {'title': t.tokenize(tit), 'content':t.tokenize(content), 'date':date}
 		dictlist.append(mcont)
+		print(len(dictlist)/len(filelist))
 	ss = {'docs': dictlist}
 
 	with open(metarchdir + directory.split("/")[-2]+".json", 'w') as outfile:
@@ -64,5 +67,7 @@ def BuildDictLoop(start_date, end_date):
 		BuildDict(date)
 
 if __name__ == "__main__":
-	BuildDictLoop("198701", "199601")
+	QueryArticleLoop("198703", "198704", 1000)
+	BuildDictLoop("198703", "198704")
+	BuildDictLoop("199602", "199612")
 
