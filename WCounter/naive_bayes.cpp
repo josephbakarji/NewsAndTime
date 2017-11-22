@@ -115,57 +115,40 @@ int naive_bayes::guess(feature_vector *fv,selected_words *sw)
 
 int histo[10];
 
+//COMMENTS: selects words. See the class definition above.
 selected_words sw("./Yearly_Rep_800_editted.txt","./Yearly_Total.txt",10);
+//COMMENTS: feature vector class. TRUE or FALSE depending on whether or not the word is in used in the file. 
 feature_vector fvec(&sw);
+//COMMENTS: naive bayes. It's actually just a function defined above.
 naive_bayes nb;
+//COMMENTS: counts the number of correctly categorized and incorrectly categorized articles in each year.
 int result[10][2];
+
 int main()
 {
-//	sw.print_content();
-//	return 0;
-//	fvec.read("../fullarticlestext/2007_1/28pfizer.txt");
-//	fvec.print();
 	for(int i=0;i<10;i++){
 		histo[i]=0;
 		result[i][0]=result[i][1]=0;
 	}
-//	for(int year=2007;year<2017;year++)
-//	for(int month=1;month<=12;month++)
-//		process_folder(year,month);
-//	sw.print_content();
-	printf("\n");	
 	for(int year=2007;year<2017;year++)
-	for(int month=1;month<12;month++)
-		process_folder(year,month);
-	for(int i=0;i<10;i++){
-		printf("\n Year %d : percentage:%f     %d  %d", i+2007, ((double)result[i][0])/((double)(result[i][0]+result[i][1])),result[i][0]+result[i][1],histo[i]);
+		for(int month=1;month<12;month++)
+			process_folder(year,month);
+	for(int i=0;i<10;i++)
+		printf("\n Year %d : percentage:%f   total number of articles  %d Number of articles predicted for this year  %d", i+2007, ((double)result[i][0])/((double)(result[i][0]+result[i][1])),result[i][0]+result[i][1],histo[i]);
 
 
-	}
+	
 	int tots=0;
 	int tota=0;
 	for(int i=0;i<10;i++){
 		tots+=result[i][0];
 		tota+=result[i][0]+result[i][1];
 	}
-	printf("\nfinal: %f", (double)tots/(double)tota);
-//	sw.print_content();
-//	double score;
-//	double freq[10];	
-//	if(sw.find_word("hillary",score)<0)
-//		printf("\n word non found");
-//	else
-//		printf("score %f", score);
-//	sw.read_freqs(1658,freq);
-//	for(int i=0;i<10;i++)
-//		printf("\n%d : %f \n",i, freq[i]); 
-
-
-
-
-
+	printf("\nFinal efficiency: %f", (double)tots/(double)tota);
 	return 0;
 }
+
+
 
 void process_folder(int year,int month)
 {
@@ -191,7 +174,7 @@ void process_folder(int year,int month)
 						result[year-2007][0]++;
 					else
 						result[year-2007][1]++;
-					printf("%d %d %s \n",year,guessy, filename);
+					printf("ACTUAL YEAR: %d MY GUESS: %d FILENAME: %s \n",year,guessy, filename);
 					histo[guessy-2007]++;
 					//if(guessy==2007)
 					//	return ;
@@ -508,7 +491,7 @@ double selected_words::compute_score(int *rep)
 //	score=(sq-avg*avg)/avg;
 	double tv=(double)itv;
 	double avg=((double)isum)/((double)num_entries);
-	score=log(avg)*tv/avg;
+	score=(log(avg))*tv/avg;
 	return score;
 }
 
