@@ -2,8 +2,8 @@ from bs4 import BeautifulSoup
 import json
 import os
 from collectarchive import DateList
+from config import *
 from queryarticles import QueryArticleLoop
-from queryarticles import ensure_dir
 from nltk.tokenize.moses import MosesTokenizer, MosesDetokenizer
 t, d = MosesTokenizer(), MosesDetokenizer()
 
@@ -14,7 +14,6 @@ def Parsehtml(file_path):
 	title = soup.title
 	date = soup.find_all('meta', itemprop="datePublished")[0]['content'].split("-")
 
-	#print(file_path)
 	
 	body = []
 	content = []
@@ -35,18 +34,20 @@ def Parsehtml(file_path):
 	
 	return tit, purecontent, date
 
-# date = "YYYYMM"
-def BuildDict(date):
+# date = "YYYYMM", second argument is limpages (in case a limited pages is to be imposed)
+def BuildDict(date, *argv):
 	if(type(date)==str):
-		directory = "./fullarticles/"+str(int(date[0:4]))+"_"+str(int(date[5:6]))+"/"
+		directory = artdir +str(int(date[0:4]))+"_"+str(int(date[5:6]))+"/"
 	elif(type(date)==list):
-		directory = "./fullarticles/"+str(date[0])+"_"+str(date[1])+"/"
-	metarchdir = "./metarch/"
-	ensure_dir(metarchdir)
+		directory = artdir +str(date[0])+"_"+str(date[1])+"/"
 	print(directory)
 
+	if(len(argv)==0):
+		filelistemp = os.listdir(directory)
+	elif(len(argv)==1):
+		filelistemp = os.listdir(directory)[:argv[0]]
 
-	filelist = os.listdir(directory)
+	filelist = filelistemp
 	dictlist = []
 
 	for f in filelist:
@@ -61,13 +62,16 @@ def BuildDict(date):
 	print(metarchdir + directory.split("/")[-1]+".json")
 	print(ss)
 
-def BuildDictLoop(start_date, end_date):
+def BuildDictLoop(start_date, end_date, *argv):
 	dlist = DateList(start_date, end_date)
-	for date in dlist:
-		BuildDict(date)
+	if(len(argv)==1):
+		limpages = argv[0]
+		for date in dlist:
+			BuildDict(date, limpages)
+	elif(len(argv)==0):
+		for date in dlist:
+			BuildDict(date)
 
 if __name__ == "__main__":
-	QueryArticleLoop("198703", "198704", 1000)
-	BuildDictLoop("198703", "198704")
 	BuildDictLoop("199602", "199612")
 

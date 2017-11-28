@@ -5,19 +5,15 @@ import datetime
 from bs4 import BeautifulSoup
 from collectarchive import NYTmetaquery, DateList, UrlRequest, FileNotinDir
 from random import randint
+from helpfunc import PageExists
+from config import *
 
 
 
 
-def ensure_dir(file_path):
-	directory = os.path.dirname(file_path)
-	if not os.path.exists(directory):
-		os.makedirs(directory)
-
-
-# Request and save articles in a local directory for a given month
-# date = 'YYYYMM' - string
-def QueryArticle(date, *argv): #add num_pages if we want to decrease the number of pages downloaded
+# Request and save articles in a local directory for a given month (requires connection)
+# date = 'YYYYMM' - string, argv contains argument limpages: number of pages to be downloaded.
+def QueryArticle(date, *argv): 
 	
 	if(type(date)==str):
 		year = int(date[0:4])
@@ -26,20 +22,17 @@ def QueryArticle(date, *argv): #add num_pages if we want to decrease the number 
 		year = date[0]
 		month = date[1]
 
-	archdirect = "./archive/"
-	ensure_dir(archdirect)
 	filename = "nyt_"+str(year)+"_"+str(month)+".json"
 
 	# Check if json metadata file exists in local directory and load it. If not request it and use it.	
-	if FileNotinDir(archdirect, filename):
+	if FileNotinDir(archdir, filename):
 		NYTmetaquery(date, date)	
-	with open(archdirect+filename) as zfile:
+	with open(archdir+filename) as zfile:
 		metadata = json.load(zfile)
 
 	urls = [metadata["response"]["docs"][i]["web_url"] for i in range(len(metadata["response"]["docs"]))];
 
-	direct = "./fullarticles/" + str(year) + "_" + str(month) + "/"
-	ensure_dir(direct)
+	direct = artdir + str(year) + "_" + str(month) + "/"
 	filelist = os.listdir(direct)
 	if(len(argv)==0):
 		# Find index of url that was last downloaded (assumes only downloading .html files)
@@ -119,8 +112,6 @@ def QueryArticleLoop(start_date, end_date, limpages):
 		print(date)
 		QueryArticle(date, limpages)
 
-def PageExists(page):
-	return (page != 404) and (page != 410) 
 
 
 if __name__ == "__main__":

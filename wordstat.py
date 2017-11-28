@@ -3,10 +3,14 @@ import os
 import time
 import datetime
 from collectarchive import DateList
+from helpfunc import ensure_dir
+from config import *
 import numpy as np
 from nltk.stem import PorterStemmer
 from nltk.corpus import stopwords
 import re
+
+
 stop_words = set(stopwords.words('english'))
 
 def MakeDictIndex(ftword):
@@ -28,7 +32,6 @@ def AcceptableString(word):
 def Maketable(ftword, start_date, end_date, trainsize):
 	
 	datelist = DateList(start_date, end_date)
-	direct = "./metarch/"
 	Xtable = np.zeros((trainsize*len(datelist), len(ftword) + 1), dtype=np.int32)
 	Ylabels = np.zeros(trainsize*len(datelist), dtype=np.int32)
 	datedict = MakeDictLabel(datelist)
@@ -39,7 +42,7 @@ def Maketable(ftword, start_date, end_date, trainsize):
 		date = datelist[j]
 		print(date)
 		filename = str(date[0]) +"_"+ str(date[1]) + ".json"
-		with open(direct+filename) as zfile:
+		with open(metarchdir+filename) as zfile:
 			metacont = json.load(zfile)
 
 		row0 = trainsize*j
@@ -56,11 +59,10 @@ def Maketable(ftword, start_date, end_date, trainsize):
 
 def MonthlyStat(start_date, end_date, trainsize):
 	datelist = DateList(start_date, end_date)
-	direct = "./metarch/"
 	datedict = MakeDictLabel(datelist)
 	wordict = dict()
 	wordind = dict()
-
+	ensure_dir(tabledir)
 	ps = PorterStemmer()
 
 	for j in range(len(datelist)):
@@ -68,13 +70,11 @@ def MonthlyStat(start_date, end_date, trainsize):
 		print(date)
 		print(len(wordict))
 		filename = str(date[0]) +"_"+ str(date[1]) + ".json"
-		with open(direct+filename) as zfile:
+		with open(metarchdir+filename) as zfile:
 			metacont = json.load(zfile)
 
 			for i in range(trainsize):
 					wlist = metacont["docs"][i]["content"]
-					#d = metacont["docs"][i]["date"]
-					#Ylabels[row0 + i] = datedict[d[0]+str(int(d[1]))]
 					for word in wlist:
 						if AcceptableString(word):
 							
@@ -90,17 +90,36 @@ def MonthlyStat(start_date, end_date, trainsize):
 
 	print("done reading")
 	Mtable = np.zeros((len(datelist), len(wordict)), dtype= np.int32)
+	wordarray = np.empty(len(wordict), dtype = '<U20')
 
 	i = 0
 	for sword, dates in wordict.items():
 		wordind[sword] = i
+		wordarray[i] = sword
 		for d, count in dates.items():
 			Mtable[datedict[d], i] = count
 		i += 1
 
-	return Mtable
+	saveMtable(Mtable, wordarray, datelist, 'MonthWord_'+start_date+'_'+end_date+'_'+str(trainsize)+'.txt')
+
+	return Mtable, wordarray, datelist  #months vs. words (row-column)
 
 
+# Create an objective function for evaluating time-relevance to be maximized
+# def ChooseWords(Mtable):
+
+
+def saveMtable(Mtable, wordarray, datelist, filename):
+	file = open(tabledir+filename,'w')
+	file.write('YEAR \t MONTH')
+	for word in wordarray:
+		file.write('\t' + word)
+	for i in range(len(datelist)):
+		file.write('\n')
+		file.write(str(datelist[i][0])+'\t'+str(datelist[i][1]))
+		countlist = Mtable[i,:]
+		for count in countlist:
+			file.write('\t'+str(count))
 
 
 if __name__ == "__main__":
@@ -111,8 +130,8 @@ if __name__ == "__main__":
 	#Xtable = Maketable(ftword, start_date, end_date, trainsize)
 
 	start_date = '198701'
-	end_date = '199601'
+	end_date = '200712'
 	trainsize = 700
 
 	g = MonthlyStat(start_date, end_date, trainsize)
-	print(g)
+	#print(g)
