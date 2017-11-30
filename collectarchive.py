@@ -9,6 +9,7 @@ import time
 def NYTmetaquery(start_date, end_date) :
 
 	DateArray = DateList(start_date, end_date)	
+	ensure_dir(archdir)
 
 	for date in DateArray:
 

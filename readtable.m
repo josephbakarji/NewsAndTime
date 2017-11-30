@@ -14,4 +14,6 @@ X = zeros(length(year), length(words));
 for i = 1:numel(words)
     X(:,i) = A.(words{i});
 end
+
+
     

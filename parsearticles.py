@@ -7,6 +7,7 @@ from queryarticles import QueryArticleLoop
 from nltk.tokenize.moses import MosesTokenizer, MosesDetokenizer
 t, d = MosesTokenizer(), MosesDetokenizer()
 
+# discard articles with no content, no date or no title?
 def Parsehtml(file_path):
 
 	myfile = open(file_path, 'r').read()

@@ -5,9 +5,8 @@ import datetime
 from bs4 import BeautifulSoup
 from collectarchive import NYTmetaquery, DateList, UrlRequest, FileNotinDir
 from random import randint
-from helpfunc import PageExists
+from helpfunc import PageExists, my_array
 from config import *
-
 
 
 
@@ -23,6 +22,8 @@ def QueryArticle(date, *argv):
 		month = date[1]
 
 	filename = "nyt_"+str(year)+"_"+str(month)+".json"
+	ensure_dir(archdir)
+	ensure_dir(artdir)
 
 	# Check if json metadata file exists in local directory and load it. If not request it and use it.	
 	if FileNotinDir(archdir, filename):
