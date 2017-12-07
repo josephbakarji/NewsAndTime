@@ -5,7 +5,7 @@ import datetime
 from bs4 import BeautifulSoup
 from collectarchive import NYTmetaquery, DateList, UrlRequest, FileNotinDir
 from random import randint
-from helpfunc import PageExists, my_array
+from helpfunc import PageExists
 from config import *
 
 
@@ -112,6 +112,7 @@ def QueryArticleLoop(start_date, end_date, limpages):
 	for date in dates:
 		print(date)
 		QueryArticle(date, limpages)
+
 
 
 

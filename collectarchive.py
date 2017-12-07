@@ -1,6 +1,6 @@
 import json
 import datetime
-from helpfunc import UrlRequest, FileNotinDir, DateList
+from helpfunc import UrlRequest, FileNotinDir, DateList, ensure_dir
 from config import *
 import time
 
@@ -11,7 +11,9 @@ def NYTmetaquery(start_date, end_date) :
 	DateArray = DateList(start_date, end_date)	
 	ensure_dir(archdir)
 
+	print('Running NYTmetaquery for date range: ', DateArray[0], DateArray[-1])
 	for date in DateArray:
+		print(date)
 
 		name = "nyt_"+str(date[0])+"_"+str(date[1])+".json"
 		

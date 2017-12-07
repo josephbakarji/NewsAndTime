@@ -38,7 +38,7 @@ def Parsehtml(file_path):
 # date = "YYYYMM", second argument is limpages (in case a limited pages is to be imposed)
 def BuildDict(date, *argv):
 	if(type(date)==str):
-		directory = artdir +str(int(date[0:4]))+"_"+str(int(date[5:6]))+"/"
+		directory = artdir +str(int(date[0:4]))+"_"+str(int(date[4:]))+"/"
 	elif(type(date)==list):
 		directory = artdir +str(date[0])+"_"+str(date[1])+"/"
 	print(directory)
@@ -74,5 +74,6 @@ def BuildDictLoop(start_date, end_date, *argv):
 			BuildDict(date)
 
 if __name__ == "__main__":
-	BuildDictLoop("199602", "199612")
+	BuildDictLoop("198701", "198702", 1000)
+	BuildDictLoop("199104", "199104", 1000)
 
