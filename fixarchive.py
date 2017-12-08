@@ -27,7 +27,10 @@ def QueryNewArticle(date, count_floor, req_size):
 		year = date[0]
 		month = date[1]
 	
-	metacont, metafilename = readMetacont(date)
+	try:
+		metacont, metafilename = readMetacont(date)
+	except:
+		metacont = {}
 	
 	arch_filename = "nyt_"+str(year)+"_"+str(month)+".json"
 	if FileNotinDir(archdir, arch_filename):
@@ -136,8 +139,8 @@ def QueryNewArticle(date, count_floor, req_size):
 if __name__ == '__main__':
 	min_words = 100
 	articles_per_month = 1000;
-	for i in range(10):
+	for i in range(1):
 		try:
-			FixArchive('199006','201612', min_words, articles_per_month)
+			FixArchive('200301','201612', min_words, articles_per_month)
 		except:
 			print("----------------CRASHED TRY AGAIN----------------")

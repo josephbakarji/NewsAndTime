@@ -22,12 +22,14 @@ ftwords, MWtop, topscores = ChooseWords(MWarr, wordarray, num_words, count_floor
 vectorizer = CountVectorizer(stop_words='english', vocabulary=ftwords)
 
 joiningtime= time.time()
+ylabel = []
 corpus = []
 for date in DateList(start_date, end_date):
 	print(date)
 	metacont = readMetacont(date)
 	for article in metacont['docs']:
 		corpus.append(' '.join(article['content']))
+		ylabel.append(article['date'][0:2])
 print('Time to join data = ', time.time() - joiningtime)
 
 

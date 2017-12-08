@@ -281,19 +281,19 @@ def MonthlyStat(start_date, end_date, trainsize):
 
 	print("done reading")
 	MWarr = np.zeros((len(datelist), len(wordict)), dtype= np.int32)
-	ftwords = np.empty(len(wordict), dtype = '<U20')
+	wordarray = np.empty(len(wordict), dtype = '<U20')
 
 	i = 0
 	for sword, dates in wordict.items():
 		wordind[sword] = i
-		ftwords[i] = sword
+		wordarray[i] = sword
 		for d, count in dates.items():
 			MWarr[datedict[d], i] = count
 		i += 1
 
-	#saveMWarr(MWarr, wordarray, datelist, 'MonthWord_'+start_date+'_'+end_date+'_'+str(trainsize)+'.txt')
+	saveMWarr(MWarr, wordarray, datelist, 'MonthWord_'+start_date+'_'+end_date+'_'+str(trainsize)+'_2'+'.txt')
 
-	return MWarr, ftwords, datelist 
+	return datelist, wordarray, MWarr
 
 
 # ChooseWords takes the full Month-Word array and generates the feature (words) space 
@@ -360,20 +360,19 @@ if __name__ == "__main__":
 	#trainsize = 700
 	#AWarr = Maketable(ftword, start_date, end_date, trainsize)
 
-	# trainsize = 700
-	# g = MonthlyStat(start_date, end_date, trainsize)
 	#print(g)
 
-	start_date = '201101'
+	start_date = '198701'
 	end_date = '201612'
 	trainsize = 750
 	devsize = 150
-	file_path = './tabledir/MonthWord_198701_201612_700.txt'
+	file_path = './tabledir/MonthWord_198701_201612_750_2.txt'
 	num_words = 10000
 	count_floor = 400
 	method = 'logsumvar'
 
-	datelist, wordarray, MWarr = readMWarr(file_path)
+	datelist, wordarray, MWarr = MonthlyStat(start_date, end_date, trainsize)
+	#datelist, wordarray, MWarr = readMWarr(file_path)
 	
 	ftwords, MWtop, topscores = ChooseWords(MWarr, wordarray, num_words, count_floor, method)
 	
