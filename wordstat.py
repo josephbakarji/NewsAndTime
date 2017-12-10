@@ -267,8 +267,7 @@ def MonthlyStat(start_date, end_date, trainsize):
 			for i in range(trainsize):
 					wlist = metacont["docs"][i]["content"]
 					for word in wlist:
-						if AcceptableString(word):
-							
+						if AcceptableString(word):		
 							sword = ps.stem(word.lower())
 							dd = str(date[0])+str(date[1])
 							if sword in wordict:
@@ -293,7 +292,7 @@ def MonthlyStat(start_date, end_date, trainsize):
 
 	saveMWarr(MWarr, wordarray, datelist, 'MonthWord_'+start_date+'_'+end_date+'_'+str(trainsize)+'_2'+'.txt')
 
-	return datelist, wordarray, MWarr
+	return datelist, wordarray.tolist(), MWarr
 
 
 # ChooseWords takes the full Month-Word array and generates the feature (words) space 
@@ -366,13 +365,13 @@ if __name__ == "__main__":
 	end_date = '201612'
 	trainsize = 750
 	devsize = 150
-	file_path = './tabledir/MonthWord_198701_201612_750_2.txt'
+	file_path = tabledir + 'MonthWord_198701_201612_750_2.txt'
 	num_words = 10000
 	count_floor = 400
 	method = 'logsumvar'
 
-	datelist, wordarray, MWarr = MonthlyStat(start_date, end_date, trainsize)
-	#datelist, wordarray, MWarr = readMWarr(file_path)
+	#datelist, wordarray, MWarr = MonthlyStat(start_date, end_date, trainsize)
+	datelist, wordarray, MWarr = readMWarr(file_path)
 	
 	ftwords, MWtop, topscores = ChooseWords(MWarr, wordarray, num_words, count_floor, method)
 	

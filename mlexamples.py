@@ -6,38 +6,41 @@ from wordstat import readMetacont, readMWarr, ChooseWords
 from helpfunc import DateList
 from nltk.corpus import reuters
 from sklearn.feature_extraction.text import CountVectorizer  
+import pdb
+from config import *
 
-start_date = '198701'
-end_date = '201612'
-trainsize = 800
-devsize = 100
-file_path = './tabledir/MonthWord_198701_201612_700.txt'
-num_words = 10000
-count_floor = 400
-method = 'logsumvar'
-
-datelist, wordarray, MWarr = readMWarr(file_path)
-ftwords, MWtop, topscores = ChooseWords(MWarr, wordarray, num_words, count_floor, method)
-
-vectorizer = CountVectorizer(stop_words='english', vocabulary=ftwords)
-
-joiningtime= time.time()
-ylabel = []
-corpus = []
-for date in DateList(start_date, end_date):
-	print(date)
-	metacont = readMetacont(date)
-	for article in metacont['docs']:
-		corpus.append(' '.join(article['content']))
-		ylabel.append(article['date'][0:2])
-print('Time to join data = ', time.time() - joiningtime)
+def MakeMonthlyCorp(start_date, end_date):
+	ylabel = []
+	corpus = []
+	Mcorpus = []
+	for date in DateList(start_date, end_date):
+		print(date)
+		metacont, filename = readMetacont(date)
+		for article in metacont['docs']:
+			corpus.append(' '.join(article['content']))
+		Mcorpus.append( ' '.join(corpus))
+		ylabel.append(date)
+	
+	return ylabel, Mcorpus
 
 
-t0= time.time()
+#def MonthlyStat
 
-BowMat = vectorizer.fit_transform(corpus)
+if __name__ == '__main__':
 
-print(time.time()-t0)
+	start_date = '198701'
+	end_date = '199012'
+	file_path = tabledir + 'MonthWord_198701_201612_750.txt'
+	num_words = 10000
+	count_floor = 400
+	method = 'logsumvar'
 
-X = BowMat.toarray()
-print(X)
+
+
+	ylabel, Mcorpus = MakeMonthlyCorp(start_date, end_date)
+	vectorizer = CountVectorizer(stop_words='english')
+	BowMat = vectorizer.fit_transform(Mcorpus)
+	X = BowMat.toarray()
+
+	# datelist, wordarray, MWarr = readMWarr(file_path)
+	ftwords, MWtop, topscores = ChooseWords(X, wordarray, num_words, count_floor, method)

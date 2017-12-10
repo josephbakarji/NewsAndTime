@@ -1,12 +1,13 @@
 from config import *
 import json
-from helpfunc import DateList, PageExists, FileNotinDir, UrlRequest
+from helpfunc import DateList, PageExists, FileNotinDir, UrlRequest, ensure_dir
 from wordstat import readMetacont
 from collectarchive import NYTmetaquery
 from nltk.tokenize.moses import MosesTokenizer, MosesDetokenizer
 t, d = MosesTokenizer(), MosesDetokenizer()
 from random import randint
 import pdb
+import re
 from bs4 import BeautifulSoup
 
 def FixArchive(start_date, end_date, count_floor, req_size):
@@ -136,11 +137,65 @@ def QueryNewArticle(date, count_floor, req_size):
 
 	print('done with '+ metafilename )
 
+
+
+def RemoveUselessWords(start_date, end_date):
+	direc = './metarchdircorr/'
+	ensure_dir(direc)
+
+	datelist = DateList(start_date, end_date)
+	for date in datelist:
+
+		metacont, filename = readMetacont(date)
+		#print(metacont)
+		for article in metacont['docs']:
+			for word in article['content']:
+				s = word.encode('unicode-escape').decode('ascii')
+				if re.match("^[a-zA-Z0-9.,()$-]*$", s) is None:
+					article['content'].remove(word)
+					#print(s)
+
+		with open(direc+filename, 'w') as outfile:
+			json.dump(metacont, outfile)
+
+
+def FixDates(start_date, end_date, metarchdircorr):
+	
+	ensure_dir(metarchdircorr)
+
+
+	datelist = DateList(start_date, end_date)
+	for date in datelist:
+
+		filename = str(date[0])+'_'+str(date[1])+'.json'
+		fdir = metarchdircorr+filename
+		with open(fdir) as zfile:
+			metacont = json.load(zfile)
+
+		for article in metacont['docs']:
+			if 'date' in article:
+				if(len(article['date'])>5):
+					article['date'] = [article['date'][2], article['date'][6], article['date'][10]]
+				print(article['date'])
+			else:
+				article['date'] = [str(date[0]), str(date[1]), str(25)]
+
+		with open(fdir, 'w') as rfile:
+			json.dump(metacont, rfile)
+
+
+
 if __name__ == '__main__':
 	min_words = 100
 	articles_per_month = 1000;
-	for i in range(1):
-		try:
-			FixArchive('200301','201612', min_words, articles_per_month)
-		except:
-			print("----------------CRASHED TRY AGAIN----------------")
+	# for i in range(1):
+	# 	try:
+	# 		FixArchive('200301','201612', min_words, articles_per_month)
+	# 	except:
+	# 		print("----------------CRASHED TRY AGAIN----------------")
+
+	#RemoveUselessWords('198701','201612')
+
+	metarchdircorr = './metarchdircorr/'
+	start_date = '200612'
+	end_date = '201612'
