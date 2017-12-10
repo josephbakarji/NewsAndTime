@@ -71,7 +71,7 @@ def saveMWarr(MWarr, wordarray, datelist, filename):
 
 
 # Reads MWarr from file_path and returns lists of year, month and wordarray, and MWarr.
-def readMWarr(file_path):
+def readMWarr(file_path, *argv):
 	datelist = []
 	MWarr = []
 
@@ -79,6 +79,9 @@ def readMWarr(file_path):
 		for idx, line in enumerate( csv.reader(tsv, delimiter='\t') ):
 			if(idx == 0):
 				wordarray = line[2:]
+				if len(argv)>0:
+					if(argv[0]=='words'):
+						return wordarray
 			else:
 				datelist.append([int(line[0]), int(line[1])])
 				X = [int(i) for i in line[2:]]
