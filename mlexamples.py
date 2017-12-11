@@ -102,7 +102,19 @@ def MakeMetarchStem(start_date, end_date):
 
 		with open(directory + filename, 'w') as zfile:
 			json.dump(metacont, zfile)
-
+#def MakeArticleCorp(start_date, end_date):
+#	ylabel = []
+#	corpus = []
+#	Acorpus = []
+#	for date in DateList(start_date, end_date):
+#		print(date)
+#		metacont, filename = readMetacont(date)
+#		for article in metacont['docs']:
+#			Acorpus.append(' '.join(article['content']))
+#			ylabel.append(date)
+#	
+#	return ylabel, Acorpus
+#
 
 if __name__ == '__main__':
 
@@ -119,3 +131,13 @@ if __name__ == '__main__':
 	devsize = 30
 
 	MakeTableFaster(start_date, end_date, MWfile, num_words, count_floor, method, trainsize, devsize, testsize)
+	datelist, wordarray, MWarr = readMWarr(file_path, 'words')
+	ftwords, MWtop, topscores = ChooseWords(X, wordarray, num_words, count_floor, method)
+
+	#ylabel, Mcorpus = MakeMonthlyCorp(start_date, end_date)
+	Aylabel, MakeArticleCorp(start_date, end_date)
+	vectorizer = CountVectorizer(stop_words='english', vocabulary=ftwords)
+	BowMat = vectorizer.fit_transform(Acorpus)
+	
+
+
