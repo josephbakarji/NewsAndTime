@@ -5,6 +5,7 @@ import pdb
 from helpfunc import ensure_dir
 import matplotlib.pyplot as plt
 from matplotlib import colors
+from sklearn.preprocessing import normalize
 
 
 start_date = '198701'
@@ -22,8 +23,8 @@ debug = 0
 save=0
 plot=0
 ML = 'NB'
-trainsizelist = [100, 200, 300, 400, 500, 600, 700, 800]
-num_wordlist = [1000, 3000, 5000, 7000, 9000,11000,13000,15000]
+trainsizelist = [300, 450, 600, 700, 800]
+num_wordlist = [1000, 4000, 7000, 11000, 15000]
 thresh = 30
 statdir = gdrive_dir + 'statdir/'
 ensure_dir(statdir)
@@ -39,7 +40,7 @@ yte = []
 ydv = []
 nullarticles_train = []
 nullarticles_dev = []
-
+param = []
 
 for num_words in num_wordlist:
 	for trainsize in trainsizelist:
@@ -87,8 +88,8 @@ f.write('\nMethod: ' + method)
 f.write('\nThreshold: '+ str(thresh))
 f.write('\nNum_words \t trainsize \t Train_accuracy \t Dev_accuracy')
 for i, vec in enumerate(param):
-	f.write('\n' + str(vec[0]) + '\t' + str(vec[1]) + '\t' + str(err_train[i]) '\t' + str(err_dev[i]))
+	f.write('\n' + str(vec[0]) + '\t' + str(vec[1]) + '\t' + str(err_train[i]) + '\t' + str(err_dev[i]))
 f.close()
 
-cmap = colors.ListedColormap(['red', 'blue'])
-bounds = [0,10,20]
+# cmap = colors.ListedColormap(['red', 'blue'])
+# bounds = [0,10,20]

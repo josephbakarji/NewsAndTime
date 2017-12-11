@@ -6,19 +6,6 @@ from helpfunc import ensure_dir
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import normalize
 
-# num_words = 2000
-# count_floor = 300
-# shift = 0
-# method = 'minmax'
-
-# file_path = tabledir + 'MonthWord_198701_201612_700.txt'
-# datelist, wordarray, MWarr = readMWarr(file_path)
-# ftwords, MWtop, topscores = ChooseWords(MWarr, wordarray, num_words, count_floor, 'minmax')
-# ftwords2, MWtop2, topscores2 = ChooseWords(MWarr, wordarray, num_words, count_floor, 'logsumvar')
-
-# plottopwords(ftwords, MWtop, topscores, datelist, 12, shift)
-# plottopwords(ftwords2, MWtop2, topscores2, datelist, 12, shift)
-
 start_date = '198701'
 end_date = '201612'
 trainsize = 800
@@ -34,7 +21,7 @@ version = 40
 debug = 0
 save=0
 plot=1
-ML = 'NB'
+ML = 'LR'
 trainsizelist = [100, 200, 300, 400, 500, 600, 700]
 num_wordlist = [6000]
 #thresh = 30
@@ -62,15 +49,6 @@ for thresh in threshlist:
 		MakeData(start_date, end_date, MWfile, trainsize, devsize, testsize, num_words, count_floor, method, timerange)
 	else:
 		AWarr_train, AWarr_test, AWarr_dev, Ylabels_train, Ylabels_test, Ylabels_dev, ftwords = loadData(version)
-
-	# Normalize
-	
-	# AWarr_test
-	# AWarr_dev
-	# Ylabels_train
-	# Ylabels_test
-	# Ylabels_dev
-
 
 	AWarr_train, Ylabels_train = FilterNoContentArticle(AWarr_train, Ylabels_train, thresh)
 	AWarr_dev, Ylabels_dev = FilterNoContentArticle(AWarr_dev, Ylabels_dev, thresh)
