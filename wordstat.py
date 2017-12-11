@@ -35,8 +35,14 @@ def MakeDictLabel(dates):
 		datedict[str(dates[i][0])+str(dates[i][1])] = i
 	return datedict 
 
+def MakeDictLabelYearly(dates):
+	datedict = dict() 
+	for i in range(len(dates)):
+		datedict[str(dates[i][0])+str(dates[i][1])] = dates[i][0]
+	return datedict 
+
 def AcceptableString(word):
-	return (re.match('\w+$', word) is not None) and (word not in reject_list)
+	return (re.match("^[a-zA-Z.,()$-]*$",word) is not None) and (word not in reject_list)
 ####################################################
 
 def readMetacont(date):
@@ -45,7 +51,7 @@ def readMetacont(date):
 	elif(type(date)==list):
 		filename = str(date[0]) +"_"+ str(date[1]) + ".json"
 
-	fdir = metarchdir+filename
+	fdir = metarchstem+filename
 	if filename in set(os.listdir(metarchdir)):
 		with open(fdir) as zfile:
 			metacont = json.load(zfile)
@@ -70,6 +76,17 @@ def saveMWarr(MWarr, wordarray, datelist, filename):
 			file.write('\t'+str(count))
 
 
+def saveMWarrSparse(MWarrSparse, wordarray, datelist, filename):
+	fileword = open(tabledir+'words'+filename,'w')
+	for word in wordarray:
+		fileword.write('\t' + word)
+	
+	filedate = open(tabledir+'date'+filename,'w')
+	for i in range(len(datelist)):
+		filedate.write(str(datelist[i][0])+'\t'+str(datelist[i][1]))
+	
+	save_npz(tabledir+'bow'+filename, MWarrSparse)
+
 # Reads MWarr from file_path and returns lists of year, month and wordarray, and MWarr.
 def readMWarr(file_path):
 	datelist = []
@@ -91,11 +108,11 @@ def readMWarr(file_path):
 
 
 # Plots the top plotnum words of the with the top score from ChooseWords().
-def plottopwords(topwords, MWtop, topscores, datelist, plotnum):
+def plottopwords(topwords, MWtop, topscores, datelist, plotnum, shift):
 
 	dates = [d[0]+d[1]/12 for d in datelist]
 	fig = plt.figure()
-	n = 0
+	n = shift
 	for i in range(plotnum):
 		plt.subplot(4, 3, i+1)
 		plt.plot(dates, MWtop[:,i+n])
@@ -104,14 +121,17 @@ def plottopwords(topwords, MWtop, topscores, datelist, plotnum):
 	plt.show()
 
 def saveDataSparse(tabledir, AWarr_train, AWarr_dev, AWarr_test, Ylabels_train, Ylabels_dev, Ylabels_test, ftwords, \
-	start_date, end_date, count_floor, method, file_path):
+	start_date, end_date, count_floor, tend, method, file_path, timerange):
 	
 	mldir = tabledir + 'ml_dir/'
 	ensure_dir(mldir)
 	fileint=[]
 	dirlist = os.listdir(mldir)
-	if('.DS_Store' in dirlist):
-		dirlist.remove('.DS_Store')
+	for fn in dirlist:
+		try:
+			int(fn)
+		except:
+			dirlist.remove(fn)
 
 	if(len(dirlist)==0):
 		os.makedirs(mldir+'1')
@@ -132,7 +152,7 @@ def saveDataSparse(tabledir, AWarr_train, AWarr_dev, AWarr_test, Ylabels_train, 
 	np.savetxt(outfile +'Ylabels_dev.txt', Ylabels_dev, fmt='%d')
 	np.savetxt(outfile +'Ylabels_test.txt', Ylabels_test, fmt='%d')
 
-	np.savetxt(outfile +'Words.txt', np.chararray.encode(ftwords), fmt='%s')
+	np.savetxt(outfile +'Words.txt', ftwords, fmt='%s')
 
 
 	f = open(outfile+'config.txt', 'w')
@@ -145,6 +165,8 @@ def saveDataSparse(tabledir, AWarr_train, AWarr_dev, AWarr_test, Ylabels_train, 
 	f.write('\nFloor on total number of words ='+ str(count_floor))
 	f.write('\nWord selection method: '+ method)
 	f.write('\nSource MonthWord File: '+file_path)
+	f.write('\nComputational Time: '+ str(tend/60.0)+' minutes ')
+	f.write('\nTime range: '+ timerange)
 	f.close()
 
 
@@ -239,6 +261,68 @@ def Maketable(ftword, start_date, end_date, trainsize, devsize):
 	return AWarr_train, AWarr_dev, AWarr_test, Ylabels_train, Ylabels_dev, Ylabels_test
 
 
+def MaketableFast(ftword, start_date, end_date, trainsize, devsize, testsize, timerange):
+	
+	datelist = DateList(start_date, end_date)
+	AWarr_train = np.zeros((trainsize*len(datelist), len(ftword) ), dtype=np.int16)
+	AWarr_dev = np.zeros((devsize*len(datelist), len(ftword) ), dtype=np.int16)
+	AWarr_test = np.zeros((testsize*len(datelist), len(ftword) ), dtype=np.int16)
+
+	Ylabels_train = np.zeros(trainsize*len(datelist), dtype=np.int16)
+	Ylabels_dev = np.zeros(devsize*len(datelist), dtype=np.int16)
+	Ylabels_test = np.zeros(testsize*len(datelist), dtype=np.int16)
+
+	if(timerange == "yearly"):
+		datedict = MakeDictLabelYearly(datelist)
+	elif(timerange == "monthly"):
+		datedict = MakeDictLabel(datelist)
+	else:
+		print('Inexistent timerange')
+
+	wordind = MakeDictIndex(ftword)
+	ensure_dir(metarchdir)
+
+	print(set(wordind))
+	for j in range(len(datelist)):
+		date = datelist[j]
+		print(date)
+		metacont, filename = readMetacont(date)
+		
+		artlist = metacont['docs']
+		artnum = len(artlist)
+		row0train = trainsize*j
+		row0dev = devsize*j
+		row0test = testsize*j
+
+		for i in range(trainsize):
+			wlist = artlist[i]["content"]
+			Ylabels_train[row0train + i] = datedict[ str(date[0]) + str(int(date[1])) ]
+			for word in wlist:
+				#sword = ps.stem(word.lower())
+				if word in wordind:
+					AWarr_train[ i + row0train, wordind[word] ] += 1
+
+		for i in range(devsize):
+			wlist = artlist[i+trainsize]["content"]
+			Ylabels_dev[row0dev + i] = datedict[ str(date[0]) + str(int(date[1])) ]
+			for word in wlist:
+				#sword = ps.stem(word.lower())
+				if word in wordind:
+					AWarr_dev[ i + row0dev, wordind[word] ] += 1
+
+		for i in range(testsize):
+			wlist = artlist[i+trainsize+devsize]["content"]
+			Ylabels_test[row0test + i] = datedict[ str(date[0]) + str(int(date[1])) ]
+			for word in wlist:
+				#sword = ps.stem(word.lower())
+				if word in wordind:
+					AWarr_test[ i + row0test, wordind[word] ] += 1
+
+
+
+	return AWarr_train, AWarr_dev, AWarr_test, Ylabels_train, Ylabels_dev, Ylabels_test
+
+
 # MonthlyStat takes a time range and training set size and returns 
 # INPUT:
 # - start_date: format 'YYYYMM' of type str
@@ -315,8 +399,10 @@ def ChooseWords(MWarr, wordarray, num_words, count_floor, method):
 		if(value<count_floor or not AcceptableString(wordarray[index])):
 			swind.append(index)
 	
+	wrdarray = wordarray
+	# pdb.set_trace()
 	for idx in sorted(swind, reverse=True):
-		del wordarray[idx]
+		del wrdarray[idx]
 
 	numvalwords = len(Mwordtot) - len(swind)
 	print('number of rejected words (below floor) is: ', len(swind))
@@ -325,12 +411,17 @@ def ChooseWords(MWarr, wordarray, num_words, count_floor, method):
 	MWarr = np.delete(MWarr, swind, 1)
 	Mwordtot = np.sum(MWarr, axis=0)
 
-
+	#pdb.set_trace()
 	# Filter words with the highest measure according to method (add methods in elif: statements)
 	if(method=='logsumvar'):
 		score = np.log(Mwordtot) * ( np.sum(np.abs(np.diff(MWarr, axis=0)), axis=0)  /  Mwordtot )
 	elif(method=='sumvar'):
-		score =  np.sum(np.abs(np.diff(MWarr, axis=0)), axis=0)  /  Mwordtot 
+		score =  np.sum(np.abs(np.diff(MWarr, axis=0)), axis=0)  /  Mwordtot
+	elif(method=='minmax'):
+		# pdb.set_trace()
+		score = (np.amax(MWarr, axis=0) - np.amin(MWarr, axis=0)) / Mwordtot
+	elif(method=='std'):
+		score = np.std(MWarr, axis=0)
 	else:
 		print('invalid measure')
 		return
@@ -344,45 +435,51 @@ def ChooseWords(MWarr, wordarray, num_words, count_floor, method):
 	sortind = np.argsort(score)
 	topscoreind = np.flip( sortind[-nwords:] , axis=0)
 	topscores = [score[x] for x in topscoreind]
-	topwords = np.take(wordarray,  topscoreind)
+	topwords = np.take(wrdarray,  topscoreind)
 	MWtop = np.take(MWarr, topscoreind, axis=1)
 
 	return topwords, MWtop, topscores
 
 
+def MakeData(start_date, end_date, MWfile, trainsize, devsize, testsize, num_words, count_floor, method, timerange):
 
+
+	file_path = tabledir + MWfile
+	datelist, wordarray, MWarr = readMWarr(file_path)
+	ftwords, MWtop, topscores = ChooseWords(MWarr, wordarray, num_words, count_floor, method)
+	
+	t0 = time.time()
+	AWarr_train, AWarr_dev, AWarr_test, Ylabels_train, Ylabels_dev, Ylabels_test = \
+	 	MaketableFast(ftwords, start_date, end_date, trainsize, devsize, testsize, timerange)
+	tend = time.time() - t0
+	print(tend)
+
+	saveDataSparse(tabledir, AWarr_train, AWarr_dev, AWarr_test, Ylabels_train, Ylabels_dev, Ylabels_test, ftwords, \
+	 	start_date, end_date, count_floor, tend, method, file_path, timerange)
+
+	# plottopwords(ftwords, MWtop, topscores, datelist, 12, 0)
+
+	return AWarr_train, AWarr_dev, AWarr_test, Ylabels_train, Ylabels_dev, Ylabels_test, ftwords
 
 if __name__ == "__main__":
-	#ftword = ['President', 'election', 'Trump', 'beauty', 'hope', 'january']
-	#start_date = '199101'
-	#end_date = '199504'
-	#trainsize = 700
-	#AWarr = Maketable(ftword, start_date, end_date, trainsize)
 
-	#print(g)
 
 	start_date = '198701'
 	end_date = '201612'
-	trainsize = 750
-	devsize = 150
-	file_path = tabledir + 'MonthWord_198701_201612_750_2.txt'
-	num_words = 10000
+	trainsize = 100
+	devsize = 100
+	testsize = 10
+	num_words = 4000
 	count_floor = 400
 	method = 'logsumvar'
+	MWfile = 'MonthWord_198701_201612_700.txt'
+	timerange = 'yearly'
+	AWarr_train, AWarr_dev, AWarr_test, Ylabels_train, Ylabels_dev, Ylabels_test= \
+	MakeData(start_date, end_date, MWfile, trainsize, devsize, testsize, num_words, count_floor, method, timerange)
 
+	# file_path = tabledir + 'MonthWord_198701_201612_750_2.txt'
 	#datelist, wordarray, MWarr = MonthlyStat(start_date, end_date, trainsize)
-	datelist, wordarray, MWarr = readMWarr(file_path)
-	
-	ftwords, MWtop, topscores = ChooseWords(MWarr, wordarray, num_words, count_floor, method)
-	
-	
-	AWarr_train, AWarr_dev, AWarr_test, Ylabels_train, Ylabels_dev, Ylabels_test = \
-		Maketable(ftwords, start_date, end_date, trainsize, devsize)
-	
-	# pdb.set_trace()
 
-	saveDataSparse(tabledir, AWarr_train, AWarr_dev, AWarr_test, Ylabels_train, Ylabels_dev, Ylabels_test, ftwords, \
-		start_date, end_date, count_floor, method, file_path)
 
-	plottopwords(ftwords, MWtop, topscores, datelist, 12)
 
+	

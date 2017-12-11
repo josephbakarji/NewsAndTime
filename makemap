@@ -1,0 +1,93 @@
+from wordstat import *
+from config import *
+from nptest import NaiveBayes, FeatWordsIndoc, loadData, LogisticReg, FilterNoContentArticle
+import pdb
+from helpfunc import ensure_dir
+import matplotlib.pyplot as plt
+
+# num_words = 2000
+# count_floor = 300
+# shift = 0
+# method = 'minmax'
+
+# file_path = tabledir + 'MonthWord_198701_201612_700.txt'
+# datelist, wordarray, MWarr = readMWarr(file_path)
+# ftwords, MWtop, topscores = ChooseWords(MWarr, wordarray, num_words, count_floor, 'minmax')
+# ftwords2, MWtop2, topscores2 = ChooseWords(MWarr, wordarray, num_words, count_floor, 'logsumvar')
+
+# plottopwords(ftwords, MWtop, topscores, datelist, 12, shift)
+# plottopwords(ftwords2, MWtop2, topscores2, datelist, 12, shift)
+
+start_date = '198701'
+end_date = '201612'
+trainsize = 800
+devsize = 60
+testsize = 2
+num_words = 30000
+count_floor = 200
+method = 'logsumvar'
+MWfile = 'MonthWord_198701_201612_700.txt'
+timerange = 'yearly'
+load = 0
+debug = 0
+save=0
+plot=0
+ML = 'NB'
+trainsizelist = [100, 200, 300, 400, 500, 600, 700, 800]
+num_wordlist = [1000, 3000, 5000, 7000, 9000,11000,13000,15000]
+thresh = 20
+statdir = gdrive_dir + 'statdir/'
+ensure_dir(statdir)
+
+err_train = []
+err_test = []
+err_dev = []
+ptr = []
+pte = []
+pdv = []
+ytr = []
+yte = []
+ydv = []
+nullarticles_train = []
+nullarticles_dev = []
+
+
+for num_words in num_wordlist:
+	for trainsize in trainsizelist:
+		print('num_words is ', num_words)
+		print('trainsize is ', trainsize)
+		if load==0:
+			AWarr_train, AWarr_dev, AWarr_test, Ylabels_train, Ylabels_dev, Ylabels_test, ftwords = \
+			MakeData(start_date, end_date, MWfile, trainsize, devsize, testsize, num_words, count_floor, method, timerange, 0)
+		else:
+			version = 26
+			AWarr_train, AWarr_test, AWarr_dev, Ylabels_train, Ylabels_test, Ylabels_dev, ftwords = loadData(version)
+
+		# Normalize
+		# AWarr_train = AWarr_train/ 
+		# AWarr_test
+		# AWarr_dev
+		# Ylabels_train
+		# Ylabels_test
+		# Ylabels_dev
+
+
+		AWarr_train, Ylabels_train = FilterNoContentArticle(AWarr_train, Ylabels_train, thresh)
+		AWarr_dev, Ylabels_dev = FilterNoContentArticle(AWarr_dev, Ylabels_dev, thresh)
+		AWarr_test, Ylabels_test = FilterNoContentArticle(AWarr_test, Ylabels_test, thresh)
+
+		nullarticles_train.append( np.size(AWarr_train, axis=0) - len( np.nonzero(np.sum(AWarr_train, axis=1))[0] ) )
+		nullarticles_dev.append( np.size(AWarr_dev, axis=0) - len( np.nonzero(np.sum(AWarr_dev, axis=1))[0] ) )
+
+
+		if(ML == 'LR'):
+			predictnb_train, predictnb_test, predictnb_dev = \
+			LogisticReg(AWarr_train, AWarr_test, AWarr_dev, Ylabels_train, Ylabels_test, Ylabels_dev)
+		elif(ML=='NB'):
+			predictnb_train, predictnb_test, predictnb_dev = \
+			NaiveBayes(AWarr_train, AWarr_test, AWarr_dev, Ylabels_train, Ylabels_test, Ylabels_dev)
+
+
+		err_train.append( predictnb_train - Ylabels_train )
+		err_test.append( predictnb_test - Ylabels_test)
+		err_dev.append( predictnb_dev - Ylabels_dev)
