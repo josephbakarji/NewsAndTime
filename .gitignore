@@ -3,4 +3,5 @@ archive/
 metarch/
 tabledir/
 metarchdircorr/
-config.py
+metarchstem/
+./config.py
