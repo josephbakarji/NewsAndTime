@@ -2,7 +2,7 @@ clear all
 close all
 clc
 
-tabledir = './tabledir/';
+tabledir = '../tabledir/';
 A = tdfread([tabledir, 'MonthWord_test.txt'], '\t');
 
 year = A.YEAR;

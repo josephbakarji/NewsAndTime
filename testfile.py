@@ -1,6 +1,6 @@
 from wordstat import *
 from config import *
-from nptest import NaiveBayes, FeatWordsIndoc, loadData, LogisticReg, FilterNoContentArticle
+from mllibs import *
 import pdb
 from helpfunc import ensure_dir
 import matplotlib.pyplot as plt
@@ -11,21 +11,21 @@ end_date = '201612'
 trainsize = 800
 devsize = 60
 testsize = 2
-num_words = 30000
-count_floor = 300
-method = 'logsumvar'
+num_words = 8000
+count_floor = 100
+method = 'sumvar'
 MWfile = 'MonthWord_198701_201612_700.txt'
 timerange = 'yearly'
 load = 1
-version = 40
+version = 42
 debug = 0
 save=0
-plot=1
-ML = 'LR'
-trainsizelist = [100, 200, 300, 400, 500, 600, 700]
-num_wordlist = [6000]
-#thresh = 30
-threshlist = [0, 10, 20, 30 ,40, 50]
+plot=0
+ML = 'NB'
+trainsizelist = [800]
+#num_wordlist = [7000]
+thresh = 30
+threshlist = [30]
 statdir = gdrive_dir + 'statdir/'
 ensure_dir(statdir)
 
@@ -42,8 +42,8 @@ nullarticles_train = []
 nullarticles_dev = []
 
 print(str(trainsize))
-for thresh in threshlist:
-	print('thresh is ', thresh)
+for trainsize in trainsizelist:
+	print('thresh is ', trainsize)
 	if load==0:
 		AWarr_train, AWarr_dev, AWarr_test, Ylabels_train, Ylabels_dev, Ylabels_test, ftwords = \
 		MakeData(start_date, end_date, MWfile, trainsize, devsize, testsize, num_words, count_floor, method, timerange)
@@ -100,15 +100,15 @@ if save:
 	f.write('\nTime range: ' + timerange)
 	f.write('\nMethod: ' + method)
 	f.write('\nThreshold: '+ str(thresh))
-	f.write('\nNum_words \t Train_accuracy \t Dev_accuracy \t no-feature train \t no-feat dev')
+	f.write('\nTrainsize \t Train_accuracy \t Dev_accuracy \t no-feature train \t no-feat dev')
 	for i in range(len(acc_train)):
-		f.write('\n' + str(num_wordlist[i]) + '\t' + str(acc_train[i]) + '\t' + str(acc_dev[i])+ '\t' + str(nullarticles_train[i]) +'\t' + str(nullarticles_dev[i]))
+		f.write('\n' + str(trainsizelist[i]) + '\t' + str(acc_train[i]) + '\t' + str(acc_dev[i])+ '\t' + str(nullarticles_train[i]) +'\t' + str(nullarticles_dev[i]))
 	f.close()
 
 if plot:
 	fig = plt.figure()
-	plt.plot(threshlist, acc_train)
-	plt.plot(treshlist, acc_dev)
+	plt.plot(trainsizelist, acc_train)
+	plt.plot(trainsizelist, acc_dev)
 	plt.title('Accuracy with number of words')
 	plt.xlabel('Number of words')
 	plt.ylabel('Accuracy')

@@ -1,6 +1,6 @@
 from wordstat import *
 from config import *
-from nptest import NaiveBayes, FeatWordsIndoc, loadData, LogisticReg, FilterNoContentArticle
+from mllibs import NaiveBayes, FeatWordsIndoc, loadData, LogisticReg, FilterNoContentArticle
 import pdb
 from helpfunc import ensure_dir
 import matplotlib.pyplot as plt

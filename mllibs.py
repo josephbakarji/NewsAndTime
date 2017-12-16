@@ -12,7 +12,6 @@ from sklearn.metrics import classification_report
 from sklearn.decomposition import NMF  
 from sklearn.linear_model import LogisticRegression
 
-version = 5
 
 def FilterNoContentArticle(AWarr, Ylabels, thresh):
 	totfeat = np.sum(AWarr, axis=1)
@@ -21,6 +20,14 @@ def FilterNoContentArticle(AWarr, Ylabels, thresh):
 	Ylabels = np.delete(Ylabels, delind, axis=0)
 	return AWarr, Ylabels
 
+def HistContentSize(version, Range):
+	AWarr_train, AWarr_test, AWarr_dev, Ylabels_train, Ylabels_test, Ylabels_dev, ftwords = loadData(version)
+
+	wordsperart = np.sum(AWarr_train, axis=1)
+
+	fig = plt.figure()
+	n, bins, patches = plt.hist(wordsperart, 80,  range=Range, facecolor='k', alpha=0.8)
+	plt.show()
 
 def loadData(version):
 	AWarr_train = load_npz(tabledir + 'ml_dir/'+str(version)+'/AWarr_train.npz').toarray()
@@ -100,7 +107,7 @@ def wrd2vec():
 
 	Scorpus = MakeSentenceList('200101', '201501', 20)
 	model = models.Word2Vec(Scorpus, size=100, window=5, min_count=5, workers=4)
-	model.wv.most_similar(positive=['Obama'], negative=['president'])
+	model.wv.most_similar(positive=['table'], negative=['chair'])
 	model.wv.vocab
 
 if __name__ == '__main__':

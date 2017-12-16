@@ -2,7 +2,7 @@ clear all
 close all
 clc
 
-tabledir = './tabledir/';
+tabledir = '../tabledir/';
 %A = tdfread([tabledir, 'MonthWord_198701_200712_700.txt'], '\t');
 A = readtable([tabledir, 'MonthWord_198701_200712_700.txt'],'delimiter','\t');
 year = A.YEAR;

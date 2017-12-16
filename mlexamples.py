@@ -26,31 +26,6 @@ def MakeMonthlyCorp(start_date, end_date, statset):
 	
 	return ylabel, Mcorpus
 
-def MakeArticleCorp(start_date, end_date, trainsize, devsize, testsize):
-	train_corpus = []
-	train_ylabel = []
-	dev_corpus = []
-	dev_ylabel = []
-	test_corpus = [] 
-	test_ylabel = [] 
-	datelist = DateList(start_date, end_date)
-	datedict = MakeDictLabel(datelist)
-
-	for date in datelist:
-		print(date)
-		metacont, filename = readMetacont(date)
-		for article in metacont['docs'][0:trainsize]:
-			train_corpus.append(' '.join(article['content']))
-			train_ylabel.append( datedict[ str(date[0]) + str(int(date[1])) ] )
-		for article in metacont['docs'][trainsize:trainsize+devsize]:
-			dev_corpus.append(' '.join(article['content']))
-			dev_ylabel.append( datedict[ str(date[0]) + str(int(date[1])) ] )
-		for article in metacont['docs'][trainsize+devsize:trainsize+devsize+testsize]:
-			test_corpus.append(' '.join(article['content']))
-			test_ylabel.append( datedict[ str(date[0]) + str(int(date[1])) ])
-
-	return train_corpus, train_ylabel, dev_corpus, dev_ylabel, test_corpus, test_ylabel
-
 def MakeSentenceList(start_date, end_date, trainsize):
 	
 	Scorpus = []
@@ -102,19 +77,45 @@ def MakeMetarchStem(start_date, end_date):
 
 		with open(directory + filename, 'w') as zfile:
 			json.dump(metacont, zfile)
-#def MakeArticleCorp(start_date, end_date):
-#	ylabel = []
-#	corpus = []
-#	Acorpus = []
-#	for date in DateList(start_date, end_date):
-#		print(date)
-#		metacont, filename = readMetacont(date)
-#		for article in metacont['docs']:
-#			Acorpus.append(' '.join(article['content']))
-#			ylabel.append(date)
-#	
-#	return ylabel, Acorpus
-#
+
+def MakeArticleCorp(start_date, end_date):
+	ylabel = []
+	corpus = []
+	Acorpus = []
+	for date in DateList(start_date, end_date):
+		print(date)
+		metacont, filename = readMetacont(date)
+		for article in metacont['docs']:
+			Acorpus.append(' '.join(article['content']))
+			ylabel.append(date)
+	
+	return ylabel, Acorpus
+
+def MakeArticleCorpSplit(start_date, end_date, trainsize, devsize, testsize):
+	train_corpus = []
+	train_ylabel = []
+	dev_corpus = []
+	dev_ylabel = []
+	test_corpus = [] 
+	test_ylabel = [] 
+	datelist = DateList(start_date, end_date)
+	datedict = MakeDictLabel(datelist)
+
+	for date in datelist:
+		print(date)
+		metacont, filename = readMetacont(date)
+		for article in metacont['docs'][0:trainsize]:
+			train_corpus.append(' '.join(article['content']))
+			train_ylabel.append( datedict[ str(date[0]) + str(int(date[1])) ] )
+		for article in metacont['docs'][trainsize:trainsize+devsize]:
+			dev_corpus.append(' '.join(article['content']))
+			dev_ylabel.append( datedict[ str(date[0]) + str(int(date[1])) ] )
+		for article in metacont['docs'][trainsize+devsize:trainsize+devsize+testsize]:
+			test_corpus.append(' '.join(article['content']))
+			test_ylabel.append( datedict[ str(date[0]) + str(int(date[1])) ])
+
+	return train_corpus, train_ylabel, dev_corpus, dev_ylabel, test_corpus, test_ylabel
+
 
 if __name__ == '__main__':
 
@@ -135,7 +136,7 @@ if __name__ == '__main__':
 	ftwords, MWtop, topscores = ChooseWords(X, wordarray, num_words, count_floor, method)
 
 	#ylabel, Mcorpus = MakeMonthlyCorp(start_date, end_date)
-	Aylabel, MakeArticleCorp(start_date, end_date)
+	ylabel, MakeArticleCorp(start_date, end_date)
 	vectorizer = CountVectorizer(stop_words='english', vocabulary=ftwords)
 	BowMat = vectorizer.fit_transform(Acorpus)
 	
