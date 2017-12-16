@@ -117,6 +117,8 @@ def QueryArticleLoop(start_date, end_date, limpages):
 
 
 if __name__ == "__main__":
-	
-	QueryArticleLoop("199601", "199712", 1000)
+	if(len(sys.argv)==4):
+		QueryArticleLoop(sys.argv[1], sys.argv[2], int(sys.argv[3]))
+	else:
+		QueryArticleLoop("199601", "199712", 1000)
 	

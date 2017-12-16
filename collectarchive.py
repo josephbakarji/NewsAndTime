@@ -3,7 +3,7 @@ import datetime
 from helpfunc import UrlRequest, FileNotinDir, DateList, ensure_dir
 from config import *
 import time
-
+import sys
 
 # start_date and end_date format is "YYYYMM", type: string
 def NYTmetaquery(start_date, end_date) :
@@ -29,4 +29,6 @@ def NYTmetaquery(start_date, end_date) :
 				print("page "+name+" was not read")
 			time.sleep(3)	
 
-
+if __name__=='__main__':
+	if(len(sys.argv)==3):
+		NYTmetaquery(sys.argv[1], sys.argv[2])

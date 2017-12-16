@@ -74,6 +74,8 @@ def BuildDictLoop(start_date, end_date, *argv):
 			BuildDict(date)
 
 if __name__ == "__main__":
-	BuildDictLoop("198701", "198702", 1000)
-	BuildDictLoop("199104", "199104", 1000)
+	if(len(sys.argv)==4):
+		BuildDictLoop(sys.argv[1], sys.argv[2], int(sys.argv[3]))
+	else:
+		BuildDictLoop("198701", "198702", 1000)
 

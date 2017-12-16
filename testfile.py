@@ -17,14 +17,14 @@ method = 'sumvar'
 MWfile = 'MonthWord_198701_201612_700.txt'
 timerange = 'yearly'
 load = 1
-version = 42
+version = 52
 debug = 0
 save=0
 plot=0
 ML = 'NB'
 trainsizelist = [800]
 #num_wordlist = [7000]
-thresh = 30
+thresh = 10
 threshlist = [30]
 statdir = gdrive_dir + 'statdir/'
 ensure_dir(statdir)
@@ -82,13 +82,15 @@ for trainsize in trainsizelist:
 	err_test.append( predictnb_test - Ylabels_test)
 	err_dev.append( predictnb_dev - Ylabels_dev)
 
-print(nullarticles_train)
-print(nullarticles_dev)
+
+print('number of words: ', len(ftwords))
+print('training set size: ',AWarr_train.shape[0])
+print('threshold wordcount: ', thresh)
 
 acc_train = []
 acc_dev = []
 for i in range(len(err_train)):
-	acc_train.append( 1 - len(np.nonzero(err_train[i])[0])/len(err_train[i])  )
+	acc_train.append(1 - len(np.nonzero(err_train[i])[0])/len(err_train[i])  )
 	acc_dev.append( 1 - len(np.nonzero(err_dev[i])[0])/len(err_dev[i]) )
 
 if save:
@@ -116,8 +118,8 @@ if plot:
 	plt.show()
 
 fig2 = plt.figure()
-n1, bins1, patches1 = plt.hist(err_train, 30, normed=1, facecolor='g', alpha=0.5)
-n, bins, patches = plt.hist(err_dev, 30, normed=1, facecolor='b', alpha=0.5)
+n1, bins1, patches1 = plt.hist(err_train, 50, normed=1, facecolor='g', alpha=0.5)
+n, bins, patches = plt.hist(err_dev, 50, normed=1, facecolor='r', alpha=0.5)
 plt.show()
 
 if debug==1:
